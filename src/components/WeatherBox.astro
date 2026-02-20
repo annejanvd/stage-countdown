@@ -1,0 +1,113 @@
+---
+interface Props {
+    cityId: string; // 'city1' or 'city2'
+    cityName: string; // Display name
+}
+const { cityId, cityName } = Astro.props;
+---
+<div class="flex flex-col items-center justify-center h-full w-full relative">
+    <span class="text-text-secondary uppercase tracking-wider text-xs font-medium mb-1">{cityName}</span>
+    
+    <!-- Icon + Temp row -->
+    <div class="flex items-center gap-3">
+        <div id={`wx-icon-${cityId}`} class="text-text-muted">
+            <!-- Default cloud icon, replaced by JS -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12" /></svg>
+        </div>
+        <span id={`wx-${cityId}`} class="text-3xl font-semibold text-text-primary tabular-nums">--°C</span>
+    </div>
+    
+    <!-- Condition text -->
+    <span id={`wx-cond-${cityId}`} class="text-xs text-text-muted mt-0.5">--</span>
+    
+    <!-- Warning code badge -->
+    <div id={`wx-code-${cityId}`} class="absolute top-1 right-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded hidden">
+        Code --
+    </div>
+</div>
+
+<script define:vars={{ cityId }}>
+    // Tabler Icons as inline SVGs (24x24, stroke 1.5)
+    const ICONS = {
+        'sun': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>',
+        'cloud-sun': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9a4 4 0 1 0 0 -4" /><path d="M3 12h1m8 -9v1m5.6 2.4l.7 -.7" /><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12" /></svg>',
+        'cloud': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12" /></svg>',
+        'cloud-drizzle': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1" /><path d="M11 18v2m-4 -2v2m8 -2v2" /></svg>',
+        'cloud-rain': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1" /><path d="M11 18v4m-4 -3v2m8 -3v4" /></svg>',
+        'cloud-snow': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1" /><path d="M11 18v.01m-4 0v.01m8 0v.01m-2 2v.01m-4 0v.01" /></svg>',
+        'cloud-storm': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1" /><path d="M13 18l-2 4m-1 -6l-2 4" /></svg>',
+        'bolt': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l0 7h6l-8 11v-7h-6z" /></svg>',
+        'mist': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h3m4 0h9" /><path d="M3 10h11m4 0h1" /><path d="M5 15h5m4 0h7" /><path d="M3 20h9m4 0h3" /></svg>',
+        'snowflake': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l2 1l2 -1m-2 -1v6.5l3 1.72" /><path d="M10 4l2 1l2 -1m-2 -1v6.5l3 1.72" transform="rotate(60 12 12)" /><path d="M10 4l2 1l2 -1m-2 -1v6.5l3 1.72" transform="rotate(120 12 12)" /><path d="M10 4l2 1l2 -1m-2 -1v6.5l3 1.72" transform="rotate(180 12 12)" /><path d="M10 4l2 1l2 -1m-2 -1v6.5l3 1.72" transform="rotate(240 12 12)" /><path d="M10 4l2 1l2 -1m-2 -1v6.5l3 1.72" transform="rotate(300 12 12)" /></svg>',
+    };
+
+    // Warning level colors
+    const LEVEL_COLORS = {
+        'groen': { bg: 'rgba(89,194,122,0.15)', text: '#59C27A', border: 'rgba(89,194,122,0.3)' },
+        'geel': { bg: 'rgba(224,162,79,0.15)', text: '#E0A24F', border: 'rgba(224,162,79,0.3)' },
+        'oranje': { bg: 'rgba(224,122,63,0.2)', text: '#E07A3F', border: 'rgba(224,122,63,0.4)' },
+        'rood': { bg: 'rgba(216,92,92,0.2)', text: '#D85C5C', border: 'rgba(216,92,92,0.4)' },
+    };
+
+    // Shared weather cache
+    if (!window.__weatherCache) {
+        window.__weatherCache = { data: null, ts: 0, fetching: null };
+    }
+
+    async function getWeatherData() {
+        const cache = window.__weatherCache;
+        if (cache.data && Date.now() - cache.ts < 900000) return cache.data;
+        if (cache.fetching) return cache.fetching;
+
+        cache.fetching = fetch('/api/weather')
+            .then(r => r.json())
+            .then(data => {
+                cache.data = data;
+                cache.ts = Date.now();
+                cache.fetching = null;
+                return data;
+            })
+            .catch(() => {
+                cache.fetching = null;
+                return cache.data;
+            });
+
+        return cache.fetching;
+    }
+
+    async function updateWeather() {
+        const data = await getWeatherData();
+        if (!data || !data[cityId]) return;
+
+        const city = data[cityId];
+        const tempEl = document.getElementById(`wx-${cityId}`);
+        const condEl = document.getElementById(`wx-cond-${cityId}`);
+        const iconEl = document.getElementById(`wx-icon-${cityId}`);
+        const codeEl = document.getElementById(`wx-code-${cityId}`);
+
+        if (tempEl) tempEl.textContent = `${city.temp}°C`;
+        if (condEl) condEl.textContent = city.condition;
+
+        // Set icon
+        if (iconEl && ICONS[city.icon]) {
+            iconEl.innerHTML = ICONS[city.icon];
+        }
+
+        // Set warning code badge (only show if not groen)
+        if (codeEl && city.level) {
+            const colors = LEVEL_COLORS[city.level] || LEVEL_COLORS['groen'];
+            if (city.level !== 'groen') {
+                codeEl.textContent = `Code ${city.level}`;
+                codeEl.style.backgroundColor = colors.bg;
+                codeEl.style.color = colors.text;
+                codeEl.style.border = `1px solid ${colors.border}`;
+                codeEl.classList.remove('hidden');
+            } else {
+                codeEl.classList.add('hidden');
+            }
+        }
+    }
+
+    updateWeather();
+    setInterval(updateWeather, 900000);
+</script>
