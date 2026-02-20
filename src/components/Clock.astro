@@ -1,0 +1,42 @@
+<div class="flex flex-col items-center justify-center h-full">
+    <h1 id="clock-display" class="text-text-hero font-semibold tracking-widest text-9xl drop-shadow-md tabular-nums leading-none">
+        --:--
+    </h1>
+    <div id="clock-seconds" class="text-text-hero/60 font-medium tracking-wider text-2xl mt-2 tabular-nums">
+        :--
+    </div>
+</div>
+
+<script>
+    let ntpOffset = 0;
+
+    async function syncTime() {
+        try {
+            const before = Date.now();
+            const res = await fetch('/api/time');
+            const after = Date.now();
+            const data = await res.json();
+            // NTP time is essentially serverTime. 
+            // We approximate latency as (after - before) / 2
+            ntpOffset = (data.ts + (after - before) / 2) - after;
+        } catch {}
+    }
+
+    function updateClock() {
+        const now = new Date(Date.now() + ntpOffset);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        const display = document.getElementById('clock-display');
+        const secDisplay = document.getElementById('clock-seconds');
+        
+        if (display) display.textContent = `${hours}:${minutes}`;
+        if (secDisplay) secDisplay.textContent = `:${seconds}`;
+    }
+
+    syncTime();
+    setInterval(syncTime, 60000); // Re-sync every minute to prevent drift
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>

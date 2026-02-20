@@ -1,0 +1,35 @@
+---
+---
+<div class="flex flex-col items-center justify-center w-full">
+    <span class="text-text-secondary uppercase tracking-wider text-lg font-medium mb-1">
+        Now Playing
+    </span>
+    <span id="spotify-track" class="text-music-accent text-3xl font-semibold mt-2 text-center max-w-4xl truncate px-4">
+        Not Playing
+    </span>
+    <span id="spotify-artist-label" class="text-text-muted text-xl mt-1 font-medium">
+        Spotify
+    </span>
+</div>
+
+<script>
+    async function updateSpotify() {
+        try {
+            const res = await fetch('/api/spotify');
+            const data = await res.json();
+            const trackEl = document.getElementById('spotify-track');
+            const artistEl = document.getElementById('spotify-artist-label');
+
+            if (data.isPlaying) {
+                if(trackEl) trackEl.textContent = data.title;
+                if(artistEl) artistEl.textContent = data.artist;
+            } else {
+                if(trackEl) trackEl.textContent = "Not Playing";
+                if(artistEl) artistEl.textContent = "Spotify";
+            }
+        } catch {}
+    }
+
+    updateSpotify();
+    setInterval(updateSpotify, 120000);
+</script>

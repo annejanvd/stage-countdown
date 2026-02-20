@@ -1,0 +1,57 @@
+---
+// Parse comma-separated URLs from .env, or use defaults
+const envSites = import.meta.env.UPTIME_SITES || 'https://cloudflare.com,https://github.com';
+const siteUrls = envSites.split(',').map((url: string) => url.trim()).filter(Boolean);
+
+// Automatically generate names from hostnames
+const sites = siteUrls.map((url: string) => {
+    try {
+        const hostname = new URL(url).hostname;
+        return { name: hostname.replace(/^www\./, ''), url };
+    } catch {
+        return { name: url, url };
+    }
+});
+
+interface SiteStatus {
+    name: string;
+    up: boolean;
+    ms: number;
+}
+
+const results: SiteStatus[] = [];
+
+for (const site of sites) {
+    try {
+        const start = Date.now();
+        const res = await fetch(site.url, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+        const ms = Date.now() - start;
+        results.push({ name: site.name, up: res.ok, ms });
+    } catch {
+        results.push({ name: site.name, up: false, ms: 0 });
+    }
+}
+---
+
+<div class="flex flex-col items-center justify-center w-full">
+    <span class="text-text-secondary uppercase tracking-wider text-sm font-medium mb-4">
+        System Status
+    </span>
+    <div class="space-y-3 w-full px-4">
+        {results.map(site => (
+            <div class="flex items-center justify-between w-full">
+                <span class="text-text-primary font-medium">{site.name}</span>
+                <div class="flex items-center gap-2">
+                    <span class={`text-sm font-mono ${site.up ? 'text-text-muted' : 'text-red-400'}`}>
+                        {site.up ? `${site.ms}ms` : 'down'}
+                    </span>
+                    <span class={`text-xs font-bold uppercase tracking-wider ${
+                        site.up ? 'text-emerald-400/80' : 'text-rose-400/80'
+                    }`}>
+                        {site.up ? 'online' : 'offline'}
+                    </span>
+                </div>
+            </div>
+        ))}
+    </div>
+</div>
