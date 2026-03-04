@@ -47,7 +47,7 @@ async function exchangeCode(code: string): Promise<void> {
 }
 
 const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url || '', `http://127.0.0.1:${PORT}`);
+    const url = new URL(req.url || '', `https://127.0.0.1:${PORT}`);
 
     if (url.pathname === '/callback') {
         const code = url.searchParams.get('code');
@@ -75,7 +75,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-    console.log(`\nLocal server started on http://127.0.0.1:${PORT}`);
+    console.log(`\nLocal server started on https://127.0.0.1:${PORT}`);
     console.log('Opening browser for Spotify authorization...\n');
 
     // Open browser (Windows)

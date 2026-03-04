@@ -5,6 +5,7 @@ import Uptime from '../components/Uptime.astro';
 import VacationCountdown from '../components/VacationCountdown.astro';
 import Spotify from '../components/Spotify.astro';
 import BusRoute from '../components/BusRoute.astro';
+import TrafficBox from '../components/TrafficBox.astro';
 import WeatherBox from '../components/WeatherBox.astro';
 import TechNews from '../components/TechNews.astro';
 
@@ -13,21 +14,26 @@ const city2Name = import.meta.env.WEATHER_CITY2_NAME || 'City 2';
 ---
 
 <Layout title="Dashboard">
-    <div class="grid grid-cols-4 grid-rows-[auto_auto_auto] gap-6 w-full h-full p-8 max-w-[1600px] max-h-[1200px] mx-auto relative content-center">
+    <div class="grid grid-cols-5 grid-rows-[auto_auto_auto] gap-6 w-full h-full p-8 max-w-[1600px] max-h-[1200px] mx-auto relative content-center">
 
         <!-- Uptime (Left Top, 1x1) -->
         <div class="col-span-1 bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg backdrop-blur-sm h-48">
             <Uptime />
         </div>
 
-        <!-- Clock (Top Broad, 2x1) -->
-        <div class="col-span-2 bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg backdrop-blur-sm h-48">
+        <!-- Clock (Top Broad, 3x1) -->
+        <div class="col-span-3 bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg backdrop-blur-sm h-48">
             <Clock />
         </div>
 
         <!-- Vacation (Right Top, 1x1) -->
         <div class="col-span-1 bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-center shadow-lg backdrop-blur-sm h-48">
             <VacationCountdown />
+        </div>
+
+        <!-- Traffic (Left Middle, 1x1) -->
+        <div class="col-span-1 bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-center shadow-lg backdrop-blur-sm relative overflow-hidden h-64">
+            <TrafficBox />
         </div>
 
         <!-- Bus (Left Middle, 2x1) -->
@@ -50,8 +56,8 @@ const city2Name = import.meta.env.WEATHER_CITY2_NAME || 'City 2';
              <WeatherBox cityId="city2" cityName={city2Name} />
         </div>
 
-        <!-- Tech News (Right Bottom, 2x1) -->
-        <div class="col-span-2 bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-center shadow-lg backdrop-blur-sm relative overflow-hidden h-48">
+        <!-- Tech News (Right Bottom, 3x1) -->
+        <div class="col-span-3 bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-center shadow-lg backdrop-blur-sm relative overflow-hidden h-48">
              <TechNews />
         </div>
 

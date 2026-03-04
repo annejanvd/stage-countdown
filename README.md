@@ -4,6 +4,7 @@ A personalized minimal dashboard built with Astro, Tailwind CSS, and Node.js.
 
 It features:
 - **Clock & Date:** NTP-synchronized highly accurate clock.
+- **Traffic:** Live travel time and delay indicator via TomTom Routing API (configurable route).
 - **Weather:** Real-time temperature and conditions via Open-Meteo (with generic Dutch descriptions and warning codes) for two configurable cities.
 - **Public Transport:** Live bus departures using OVapi for any configured route.
 - **Tech News:** Auto-rotating latest headlines from Tweakers.net.
@@ -53,7 +54,22 @@ WEATHER_CITY2_LON=4.4792
 # Uptime Monitor
 # Comma-separated list of URLs to monitor (names will be extracted automatically)
 UPTIME_SITES=https://example.com,https://github.com
+
+# Traffic (TomTom API)
+# Get a free API key at https://developer.tomtom.com/
+TOMTOM_API_KEY=your_tomtom_key
+TRAFFIC_START_NAME=Amsterdam
+TRAFFIC_START=52.3676,4.9041
+TRAFFIC_END_NAME=Rotterdam
+TRAFFIC_END=51.9225,4.4792
 ```
+
+### 🚗 Getting a TomTom API Key
+1. Go to the [TomTom Developer Portal](https://developer.tomtom.com/).
+2. Create a free account.
+3. Once logged in, go to your dashboard and copy your default "API Key" ("REST API").
+4. Paste it into `.env` under `TOMTOM_API_KEY`.
+5. You get 2500 free requests per day, which easily covers the 5-minute polling interval.
 
 ### 📍 Finding your OVapi Stop Code (TPC)
 

@@ -1,0 +1,82 @@
+---
+const startName = import.meta.env.TRAFFIC_START_NAME || 'Oldenzaal';
+const endName = import.meta.env.TRAFFIC_END_NAME || 'Hengelo';
+---
+<div class="flex flex-col items-center justify-center p-4 h-full w-full relative">
+    <div class="flex items-center gap-2 mb-2">
+        <span class="text-text-secondary uppercase tracking-wider text-xs font-medium">{startName}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-muted"><path d="M5 12l14 0" /><path d="M13 18l6 -6" /><path d="M13 6l6 6" /></svg>
+        <span class="text-text-secondary uppercase tracking-wider text-xs font-medium">{endName}</span>
+    </div>
+
+    <!-- Icon + Time row -->
+    <div class="flex items-center gap-3">
+        <div id="traffic-icon" class="text-text-muted">
+            <!-- Tabler Car Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5" /></svg>
+        </div>
+        <div class="flex flex-col items-start">
+            <span id="traffic-time" class="text-3xl font-semibold text-text-primary tabular-nums">--m</span>
+        </div>
+    </div>
+    
+    <!-- Delay indicator text -->
+    <span id="traffic-delay-text" class="text-xs text-text-muted mt-1 opacity-0 transition-opacity">No delay</span>
+</div>
+
+<script>
+    async function updateTraffic() {
+        try {
+            const res = await fetch('/api/traffic');
+            const data = await res.json();
+            
+            const timeEl = document.getElementById('traffic-time');
+            const delayEl = document.getElementById('traffic-delay-text');
+            const iconEl = document.getElementById('traffic-icon');
+
+            if (data.error) {
+                if (timeEl) timeEl.textContent = 'Err';
+                if (delayEl) {
+                    delayEl.textContent = data.error === 'Missing TOMTOM_API_KEY' ? 'Key missing' : 'Offline';
+                    delayEl.classList.remove('opacity-0');
+                    delayEl.className = 'text-xs text-status-warning mt-1';
+                }
+                return;
+            }
+
+            if (timeEl) {
+                timeEl.textContent = `${data.travelTimeMinutes}m`;
+                
+                // Color formatting based on delay
+                if (data.trafficDelayMinutes > 5) {
+                    timeEl.className = 'text-3xl font-semibold text-temp-hot tabular-nums'; // Red
+                    if (iconEl) iconEl.className = 'text-temp-hot';
+                } else if (data.trafficDelayMinutes > 0) {
+                    timeEl.className = 'text-3xl font-semibold text-status-warning tabular-nums'; // Orange
+                    if (iconEl) iconEl.className = 'text-status-warning';
+                } else {
+                    timeEl.className = 'text-3xl font-semibold text-text-primary tabular-nums'; // Normal
+                    if (iconEl) iconEl.className = 'text-text-muted';
+                }
+            }
+
+            if (delayEl) {
+                if (data.trafficDelayMinutes > 0) {
+                    delayEl.textContent = `+${data.trafficDelayMinutes}m delay`;
+                    delayEl.classList.remove('opacity-0');
+                    delayEl.className = `text-xs font-medium mt-1 ${data.trafficDelayMinutes > 5 ? 'text-temp-hot' : 'text-status-warning'}`;
+                } else {
+                    delayEl.textContent = `Clear route`;
+                    delayEl.classList.remove('opacity-0');
+                    delayEl.className = 'text-xs text-text-muted mt-1';
+                }
+            }
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    updateTraffic();
+    setInterval(updateTraffic, 300000); // 5 minutes
+</script>
