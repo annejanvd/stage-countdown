@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(curl -sI \"http://feeds.feedburner.com/tweakers/nieuws\")",
+      "Bash(node -e \":*)",
+      "Bash(git -C c:/persoonlijke-projecten/dashboard diff HEAD --stat)",
+      "Bash(git -C c:/persoonlijke-projecten/dashboard status --short)"
+    ]
+  }
+}

@@ -68,7 +68,7 @@ export const GET: APIRoute = async () => {
         const access_token = await getAccessToken();
         const response = await getNowPlaying(access_token);
 
-        if (response.status === 204 || response.status > 400) {
+        if (response.status === 204 || response.status >= 400) {
             return new Response(JSON.stringify({ isPlaying: false }), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }

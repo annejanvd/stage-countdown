@@ -4,14 +4,19 @@
     <span class="text-text-secondary uppercase tracking-wider text-xs font-medium mb-2 absolute top-4 left-6">
         Tech News
     </span>
-    
-    <div id="tech-news-container" class="w-full text-center relative h-20 flex flex-col items-center justify-center">
+
+    <div id="tech-news-container" class="w-full text-center relative h-20 flex flex-col items-center justify-center pr-24">
         <span id="tech-headline" class="text-text-primary text-lg font-medium leading-tight line-clamp-2 transition-opacity duration-500 opacity-100">
             Loading news...
         </span>
         <span id="tech-time" class="text-text-muted text-xs font-mono mt-2 transition-opacity duration-500 opacity-100">
             --:--
         </span>
+    </div>
+
+    <!-- QR code -->
+    <div class="absolute bottom-2 right-4 flex flex-col items-center gap-1">
+        <img id="tech-qr" src="" alt="QR" class="w-20 h-20 rounded opacity-80" style="display:none" />
     </div>
 
     <!-- Progress bar -->
@@ -21,7 +26,9 @@
 </div>
 
 <script>
-    let newsItems: {title: string, time: string}[] = [];
+    import QRCode from 'qrcode';
+
+    let newsItems: {title: string, time: string, link: string}[] = [];
     let currentIndex = 0;
 
     async function fetchNews() {
@@ -35,21 +42,34 @@
         } catch {}
     }
 
-    function showHeadline(index: number) {
+    async function showHeadline(index: number) {
         const titleEl = document.getElementById('tech-headline');
         const timeEl = document.getElementById('tech-time');
-        
+        const qrEl = document.getElementById('tech-qr') as HTMLImageElement | null;
+
         if (titleEl) {
             titleEl.style.opacity = '0';
-            if(timeEl) timeEl.style.opacity = '0';
+            if (timeEl) timeEl.style.opacity = '0';
+            if (qrEl) qrEl.style.opacity = '0';
 
-            setTimeout(() => {
-                if (newsItems[index]) {
-                    titleEl.textContent = newsItems[index].title;
-                    if(timeEl) timeEl.textContent = newsItems[index].time;
+            setTimeout(async () => {
+                const item = newsItems[index];
+                if (item) {
+                    titleEl.textContent = item.title;
+                    if (timeEl) timeEl.textContent = item.time;
+
+                    if (qrEl && item.link) {
+                        qrEl.src = await QRCode.toDataURL(item.link, {
+                            margin: 1,
+                            width: 80,
+                            color: { dark: '#F3F3EF', light: '#4F4F4D' },
+                        });
+                        qrEl.style.display = 'block';
+                        qrEl.style.opacity = '0.8';
+                    }
                 }
                 titleEl.style.opacity = '1';
-                if(timeEl) timeEl.style.opacity = '1';
+                if (timeEl) timeEl.style.opacity = '1';
             }, 500);
         }
 
